@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Bell, Moon, Search, Sun } from 'lucide-react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import { useAppStore } from './store/useAppStore'
 import styles from './App.module.css'
@@ -14,6 +14,8 @@ function App() {
   const theme = useAppStore((state) => state.theme)
   const toggleTheme = useAppStore((state) => state.toggleTheme)
   const navigate = useNavigate()
+  const location = useLocation()
+  const [searchQuery, setSearchQuery] = useState('')
 
   return (
     <div className={styles.app} data-theme={theme}>
@@ -23,7 +25,16 @@ function App() {
           <header className={styles.topbar}>
             <label className={styles.searchWrap}>
               <Search className={styles.searchIcon} size={18} />
-              <input className={styles.search} placeholder="Search videos, creators..." aria-label="Search videos" />
+              <input
+                className={styles.search}
+                placeholder="Search videos, creators..."
+                aria-label="Search videos"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value)
+                  if (location.pathname !== '/home') navigate('/home')
+                }}
+              />
             </label>
             <div className={styles.actions}>
               <button className={styles.iconButton} type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}>
@@ -36,7 +47,7 @@ function App() {
           <Suspense fallback={<main className={styles.page} aria-live="polite"><p className={styles.subtitle}>Loading StreamVibe…</p></main>}>
             <Routes>
               <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/home" element={<HomePage query={searchQuery} />} />
               <Route path="/watch/:id" element={<WatchPage />} />
               <Route path="/live" element={<LivePage />} />
               <Route path="/studio" element={<StudioPage />} />
