@@ -1,16 +1,54 @@
-# React + Vite
+# StreamVibe
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+StreamVibe is a responsive video discovery and creator dashboard prototype built with React and Vite. Browse a curated feed, filter and search stories, open a watch page, join a live chat, and manage creator video listings.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Responsive home feed with category filters and search across titles, creators, and categories
+- Watch pages with related videos, preview controls, likes, saved state, and share action
+- Live room interface with an in-page chat
+- Creator Studio for adding and removing video listings
+- Light and dark themes
+- Browser storage for theme, likes, saved videos, and creator listings
+- Lazy-loaded pages, loading fallback, empty states, missing-video handling, and a page error fallback
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 and Vite
+- React Router
+- Zustand
+- CSS Modules
+- Vitest and Testing Library
 
-## Expanding the Oxlint configuration
+## Run locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+npm install
+npm run dev
+```
+
+Vite prints the local development URL in the terminal.
+
+## Checks
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
+## Routes
+
+- `/home` — discover and search videos
+- `/watch/:id` — watch-page preview and related content
+- `/live` — live room and chat interface
+- `/studio` — creator listing dashboard
+
+## Deployment
+
+The app is a Vite single-page application and can be deployed on Vercel with the default Vite settings:
+
+- Build command: `npm run build`
+- Output directory: `dist`
+
+The current project uses curated sample content and browser storage. It does not connect to a streaming service, upload service, or remote database.

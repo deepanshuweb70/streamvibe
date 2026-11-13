@@ -1,6 +1,6 @@
-import { lazy, Suspense, useState } from 'react'
+import { Component, lazy, Suspense, useState } from 'react'
 import { Bell, Moon, Search, Sun } from 'lucide-react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import { useAppStore } from './store/useAppStore'
 import styles from './App.module.css'
@@ -9,6 +9,21 @@ const HomePage = lazy(() => import('./pages/HomePage'))
 const WatchPage = lazy(() => import('./pages/WatchPage'))
 const LivePage = lazy(() => import('./pages/LivePage'))
 const StudioPage = lazy(() => import('./pages/StudioPage'))
+
+class PageErrorBoundary extends Component {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <main className={styles.page}><div className={styles.emptyState} role="alert"><h1>That page hit a snag</h1><p>Try opening it again, or head back to your stream.</p><Link className={styles.secondaryButton} to="/home">Back to Home</Link></div></main>
+    }
+    return this.props.children
+  }
+}
 
 function App() {
   const theme = useAppStore((state) => state.theme)
@@ -44,16 +59,18 @@ function App() {
               <button className={styles.avatar} type="button" onClick={() => navigate('/studio')} aria-label="Open creator studio">D</button>
             </div>
           </header>
-          <Suspense fallback={<main className={styles.page} aria-live="polite"><p className={styles.subtitle}>Loading StreamVibe…</p></main>}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<HomePage query={searchQuery} />} />
-              <Route path="/watch/:id" element={<WatchPage />} />
-              <Route path="/live" element={<LivePage />} />
-              <Route path="/studio" element={<StudioPage />} />
-              <Route path="*" element={<Navigate to="/home" replace />} />
-            </Routes>
-          </Suspense>
+          <PageErrorBoundary key={location.pathname}>
+            <Suspense fallback={<main className={styles.page} aria-live="polite"><div className={styles.loadingState}><span /><span /><span /></div><p className={styles.subtitle}>Loading your stream…</p></main>}>
+              <Routes>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<HomePage query={searchQuery} />} />
+                <Route path="/watch/:id" element={<WatchPage />} />
+                <Route path="/live" element={<LivePage />} />
+                <Route path="/studio" element={<StudioPage />} />
+                <Route path="*" element={<Navigate to="/home" replace />} />
+              </Routes>
+            </Suspense>
+          </PageErrorBoundary>
         </div>
       </div>
     </div>
