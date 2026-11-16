@@ -39,10 +39,18 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [searchQuery])
 
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined
+    const closeOnEscape = (event) => { if (event.key === 'Escape') setMobileNavOpen(false) }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [mobileNavOpen])
+
   return (
     <div className={styles.app} data-theme={theme}>
       <div className={styles.layout}>
         <Sidebar open={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
+        {mobileNavOpen && <button className={styles.navBackdrop} type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} />}
         <div className={styles.workspace}>
           <header className={styles.topbar}>
             <button className={styles.mobileMenu} type="button" onClick={() => setMobileNavOpen((open) => !open)} aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'}>{mobileNavOpen ? <X size={20} /> : <Menu size={20} />}</button>
