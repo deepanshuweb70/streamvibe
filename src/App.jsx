@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useState } from 'react'
+import { Component, lazy, Suspense, useEffect, useState } from 'react'
 import { Bell, Moon, Search, Sun } from 'lucide-react'
 import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
@@ -31,6 +31,12 @@ function App() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(searchQuery), 250)
+    return () => window.clearTimeout(timer)
+  }, [searchQuery])
 
   return (
     <div className={styles.app} data-theme={theme}>
@@ -63,7 +69,7 @@ function App() {
             <Suspense fallback={<main className={styles.page} aria-live="polite"><div className={styles.loadingState}><span /><span /><span /></div><p className={styles.subtitle}>Loading your stream…</p></main>}>
               <Routes>
                 <Route path="/" element={<Navigate to="/home" replace />} />
-                <Route path="/home" element={<HomePage query={searchQuery} />} />
+                <Route path="/home" element={<HomePage query={debouncedQuery} />} />
                 <Route path="/watch/:id" element={<WatchPage />} />
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/studio" element={<StudioPage />} />

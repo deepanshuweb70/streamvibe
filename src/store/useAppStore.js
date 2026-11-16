@@ -46,6 +46,11 @@ export const useAppStore = create((set) => ({
     save('streamvibe-videos', videos)
     return { videos }
   }),
+  updateVideo: (id, changes) => set((state) => {
+    const videos = state.videos.map((video) => video.id === id ? { ...video, ...changes } : video)
+    save('streamvibe-videos', videos)
+    return { videos }
+  }),
   removeVideo: (id) => set((state) => {
     const videos = state.videos.filter((video) => video.id !== id)
     save('streamvibe-videos', videos)

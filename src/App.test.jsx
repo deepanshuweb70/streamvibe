@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -35,5 +35,17 @@ describe('StreamVibe main flows', () => {
     await user.click(screen.getByRole('button', { name: /publish listing/i }))
     expect(await screen.findByText('My first story')).toBeInTheDocument()
     await waitFor(() => expect(useAppStore.getState().videos.some((video) => video.title === 'My first story')).toBe(true))
+  })
+
+  it('renders a native media player and lets viewers add and upvote comments', async () => {
+    const user = userEvent.setup()
+    render(<MemoryRouter initialEntries={['/watch/aurora']}><App /></MemoryRouter>)
+    expect(await screen.findByLabelText('Chasing the Northern Lights in Iceland')).toHaveProperty('tagName', 'VIDEO')
+    await user.type(screen.getByRole('textbox', { name: 'Write a comment' }), 'Loved the film')
+    await user.click(screen.getByRole('button', { name: 'Comment' }))
+    expect(await screen.findByText('Loved the film')).toBeInTheDocument()
+    const commentCard = screen.getByText('Loved the film').closest('article')
+    await user.click(within(commentCard).getByRole('button', { name: /helpful/i }))
+    expect(within(commentCard).getByRole('button', { name: '▲ Helpful · 1' })).toBeInTheDocument()
   })
 })

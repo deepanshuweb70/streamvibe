@@ -9,6 +9,7 @@ const categories = ['For you', 'Music', 'Travel', 'Design', 'Lifestyle']
 export default function HomePage({ query = '' }) {
   const videos = useAppStore((state) => state.videos)
   const [activeCategory, setActiveCategory] = useState('For you')
+  const [visibleCount, setVisibleCount] = useState(6)
   const normalizedQuery = query.trim().toLowerCase()
   const visibleVideos = videos.filter((video) => {
     const matchesCategory = activeCategory === 'For you' || video.category === activeCategory
@@ -35,15 +36,15 @@ export default function HomePage({ query = '' }) {
           onClick={() => setActiveCategory(category)}
         >{category}</button>)}
       </div>}
-      {visibleVideos.length ? <div className={styles.videoGrid}>
-        {visibleVideos.map((video) => <Link key={video.id} to={`/watch/${video.id}`} className={styles.videoCard}>
+      {visibleVideos.length ? <><div className={styles.videoGrid}>
+        {visibleVideos.slice(0, visibleCount).map((video) => <Link key={video.id} to={`/watch/${video.id}`} className={styles.videoCard}>
           <div className={`${styles.thumbnail} ${styles[video.color] || ''}`}>
             <span className={styles.thumbnailPlay}><Play size={23} fill="currentColor" /></span>
             {video.live ? <span className={styles.liveBadge}><Radio size={13} /> LIVE</span> : <span className={styles.duration}>{video.duration || 'New'}</span>}
           </div>
           <div className={styles.videoInfo}><strong>{video.title}</strong><span>{video.creator}</span><span>{video.views || video.category}</span></div>
         </Link>)}
-      </div> : <div className={styles.emptyState}><h3>No videos found</h3><p>Try another search or category.</p><button className={styles.secondaryButton} type="button" onClick={() => setActiveCategory('For you')}>Show all categories</button></div>}
+      </div>{visibleCount < visibleVideos.length && <button className={styles.secondaryButton} type="button" onClick={() => setVisibleCount((count) => count + 6)}>Load more videos</button>}</> : <div className={styles.emptyState}><h3>No videos found</h3><p>Try another search or category.</p><button className={styles.secondaryButton} type="button" onClick={() => setActiveCategory('For you')}>Show all categories</button></div>}
     </section>
   </main>
 }

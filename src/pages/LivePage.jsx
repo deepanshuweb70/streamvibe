@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageCircle, Play, Radio, Send, Users } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
@@ -16,6 +16,7 @@ export default function LivePage() {
   const [selectedId, setSelectedId] = useState(liveStreams[0]?.id ?? '')
   const [messages, setMessages] = useState(startingMessages)
   const [message, setMessage] = useState('')
+  const messagesRef = useRef(null)
   const activeStream = liveStreams.find((stream) => stream.id === selectedId) ?? liveStreams[0]
 
   function sendMessage(event) {
@@ -26,6 +27,11 @@ export default function LivePage() {
     setMessage('')
   }
 
+  useEffect(() => {
+    const panel = messagesRef.current
+    if (panel) panel.scrollTop = panel.scrollHeight
+  }, [messages])
+
   return <main className={styles.page}>
     <p className={styles.eyebrow}>Live now</p><h1 className={styles.title}>Be here for the moment.</h1><p className={styles.subtitle}>Watch live creators and join the conversation.</p>
     {activeStream ? <div className={styles.liveLayout}>
@@ -35,8 +41,8 @@ export default function LivePage() {
         {liveStreams.length > 1 && <div className={styles.streamPicker}><h3>More live streams</h3>{liveStreams.filter((stream) => stream.id !== activeStream.id).map((stream) => <button key={stream.id} type="button" className={styles.secondaryButton} onClick={() => setSelectedId(stream.id)}><Radio size={15} /> {stream.title}</button>)}</div>}
       </section>
       <section className={styles.chatPanel} aria-label="Live chat"><div className={styles.chatHeader}><div><MessageCircle size={17} /><strong>Live chat</strong></div><span>{messages.length} messages</span></div>
-        <div className={styles.chatMessages} aria-live="polite">{messages.map((item, index) => <p className={styles.chatMessage} key={`${item.name}-${index}`}><strong>{item.name}</strong><span>{item.text}</span></p>)}</div>
-        <form className={styles.chatForm} onSubmit={sendMessage}><input aria-label="Write a chat message" maxLength={180} placeholder="Say something kind…" value={message} onChange={(event) => setMessage(event.target.value)} /><button aria-label="Send message" type="submit" disabled={!message.trim()}><Send size={16} /></button></form>
+        <div className={styles.chatMessages} ref={messagesRef} aria-live="polite">{messages.map((item, index) => <p className={styles.chatMessage} key={`${item.name}-${index}`}><strong>{item.name}</strong><span>{item.text}</span></p>)}</div>
+        <form className={styles.chatForm} onSubmit={sendMessage}><input aria-label="Write a chat message" maxLength={180} placeholder="Say something kind…" value={message} onChange={(event) => setMessage(event.target.value)} /><button aria-label="Add a heart emoji" type="button" className={styles.emojiButton} onClick={() => setMessage((value) => `${value} 💜`.trimStart())}>💜</button><button aria-label="Send message" type="submit" disabled={!message.trim()}><Send size={16} /></button></form>
       </section>
     </div> : <div className={styles.emptyState}><Radio size={30} /><h2>No one is live right now</h2><p>Check back soon or explore the latest stories.</p><Link to="/home" className={styles.secondaryButton}>Explore videos</Link></div>}
   </main>
