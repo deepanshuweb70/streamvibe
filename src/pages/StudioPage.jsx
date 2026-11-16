@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Clapperboard, Eye, Pencil, Plus, Trash2, Video } from 'lucide-react'
+import { Clapperboard, Eye, Heart, Pencil, Plus, Timer, Trash2, Video } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import styles from '../App.module.css'
 
@@ -7,6 +7,7 @@ const categories = ['Music', 'Travel', 'Design', 'Lifestyle']
 
 export default function StudioPage() {
   const videos = useAppStore((state) => state.videos)
+  const likedVideos = useAppStore((state) => state.likedVideos)
   const addVideo = useAppStore((state) => state.addVideo)
   const removeVideo = useAppStore((state) => state.removeVideo)
   const updateVideo = useAppStore((state) => state.updateVideo)
@@ -73,6 +74,8 @@ export default function StudioPage() {
     <section className={styles.studioStats} aria-label="Channel overview">
       <article className={styles.studioStat}><span><Video size={18} /> Videos</span><strong>{myVideos.length}</strong><small>In your library</small></article>
       <article className={styles.studioStat}><span><Eye size={18} /> Views</span><strong>{myVideos.reduce((total, item) => total + (Number(item.viewCount) || 0), 0).toLocaleString()}</strong><small>Demo analytics</small></article>
+      <article className={styles.studioStat}><span><Heart size={18} /> Likes</span><strong>{myVideos.reduce((total, item) => total + (likedVideos.includes(item.id) ? 1 : 0), 0)}</strong><small>From your library</small></article>
+      <article className={styles.studioStat}><span><Timer size={18} /> Watch time</span><strong>{myVideos.reduce((total, item) => total + (Number(item.watchMinutes) || 0), 0)} min</strong><small>Demo analytics</small></article>
       <article className={styles.studioStat}><span><Clapperboard size={18} /> Channel</span><strong>Active</strong><small>Ready to create</small></article>
     </section>
     <section className={styles.studioGrid}>
@@ -87,12 +90,9 @@ export default function StudioPage() {
         {notice && <p className={styles.successMessage} role="status">{notice}</p>}
       </form>
       <section className={styles.libraryPanel} aria-labelledby="library-heading"><div className={styles.sectionHeading}><div><h2 id="library-heading">Your videos</h2><p className={styles.sectionNote}>Recently added to your library.</p></div><span>{myVideos.length} total</span></div>
-        {myVideos.length ? <div className={styles.libraryList}>{myVideos.map((video) => <article className={styles.libraryItem} key={video.id}>
-          <span className={`${styles.libraryThumb} ${styles[video.color] || ''}`}><Video size={18} /></span>
-          <span className={styles.libraryInfo}><strong>{video.title}</strong><small>{video.category} · Published</small></span>
-          <button type="button" className={styles.removeButton} aria-label={`Edit ${video.title}`} onClick={() => editVideo(video)}><Pencil size={15} /></button>
-          <button type="button" className={styles.removeButton} aria-label={`Remove ${video.title}`} onClick={() => removeVideo(video.id)}><Trash2 size={16} /></button>
-        </article>)}</div> : <div className={styles.emptyLibrary}><Clapperboard size={27} /><strong>Your library is ready</strong><span>Publish your first video listing here.</span></div>}
+        {myVideos.length ? <div className={styles.tableScroll}><table className={styles.videoTable}><thead><tr><th>Video</th><th>Category</th><th>Views</th><th>Actions</th></tr></thead><tbody>{myVideos.map((video) => <tr key={video.id}>
+          <td><span className={styles.tableVideo}><span className={`${styles.libraryThumb} ${styles[video.color] || ''}`}><Video size={18} /></span><span><strong>{video.title}</strong><small>{video.creator} · Published</small></span></span></td><td>{video.category}</td><td>{Number(video.viewCount || 0).toLocaleString()}</td><td><span className={styles.tableActions}><button type="button" className={styles.removeButton} aria-label={`Edit ${video.title}`} onClick={() => editVideo(video)}><Pencil size={15} /></button><button type="button" className={styles.removeButton} aria-label={`Remove ${video.title}`} onClick={() => removeVideo(video.id)}><Trash2 size={16} /></button></span></td>
+        </tr>)}</tbody></table></div> : <div className={styles.emptyLibrary}><Clapperboard size={27} /><strong>Your library is ready</strong><span>Publish your first video listing here.</span></div>}
       </section>
     </section>
   </main>

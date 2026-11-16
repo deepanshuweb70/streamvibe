@@ -20,10 +20,14 @@ export default function WatchPage() {
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(0.8)
   const [quality, setQuality] = useState('720p')
+  const [qualityNotice, setQualityNotice] = useState('')
   const [comments, setComments] = useState([{ id: 1, author: 'Aarav', text: 'Beautiful colors and such a calming story.', votes: 3 }, { id: 2, author: 'Mia', text: 'Would love to see more videos like this!', votes: 1 }])
   const [comment, setComment] = useState('')
   const [replyTo, setReplyTo] = useState(null)
   const [reply, setReply] = useState('')
+  const [liveMessage, setLiveMessage] = useState('')
+  const [liveMessages, setLiveMessages] = useState([{ name: 'Lena', text: 'Enjoying the stream!' }, { name: 'Arjun', text: 'Such a lovely story 💜' }])
+  const chatRef = useRef(null)
   const video = videos.find((item) => item.id === id)
 
   useEffect(() => {
@@ -46,6 +50,7 @@ export default function WatchPage() {
       player.removeEventListener('pause', onPause)
     }
   }, [])
+  useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight }, [liveMessages])
 
   if (!video) return <main className={styles.page}><Link className={styles.backLink} to="/home"><ArrowLeft size={17} /> Back to Home</Link><div className={styles.emptyState}><h1>Video not found</h1><p>This video may have been removed from the feed.</p></div></main>
 
@@ -73,6 +78,13 @@ export default function WatchPage() {
     setReply('')
     setReplyTo(null)
   }
+  const postLiveMessage = (event) => {
+    event.preventDefault()
+    const text = liveMessage.trim()
+    if (!text) return
+    setLiveMessages((items) => [...items, { name: 'You', text }])
+    setLiveMessage('')
+  }
 
   return <main className={styles.page}>
     <Link className={styles.backLink} to="/home"><ArrowLeft size={17} /> Back to Home</Link>
@@ -91,10 +103,11 @@ export default function WatchPage() {
             <span>{formatTime(duration)}</span>
             <Volume2 size={16} />
             <input className={styles.volumeSlider} aria-label="Volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={(event) => changeVolume(event.target.value)} />
-            <label className={styles.qualityControl}>Quality<select aria-label="Video quality" value={quality} onChange={(event) => setQuality(event.target.value)}><option>480p</option><option>720p</option><option>1080p</option></select></label>
+            <label className={styles.qualityControl}>Quality<select aria-label="Video quality" value={quality} onChange={(event) => { setQuality(event.target.value); setQualityNotice(`Demo quality set to ${event.target.value}`) }}><option>480p</option><option>720p</option><option>1080p</option></select></label>
             <button className={styles.playerControlButton} type="button" aria-label="Fullscreen" onClick={() => playerRef.current?.parentElement?.requestFullscreen?.()}><Maximize size={16} /></button>
           </div>
         </div>
+        {qualityNotice && <p className={styles.qualityNotice} role="status">{qualityNotice} (quality options are simulated)</p>}
         <div className={styles.watchTitleRow}><div><p className={styles.eyebrow}>{video.category}</p><h1 className={styles.title}>{video.title}</h1><p className={styles.subtitle}>{video.views}</p></div></div>
         <div className={styles.creatorRow}>
           <div className={styles.creatorAvatar}>{video.creator.slice(0, 1)}</div>
@@ -112,12 +125,14 @@ export default function WatchPage() {
           </article>)}
         </section>
       </section>
+      <aside className={styles.watchAside}>
+      <section className={styles.watchChat} aria-label="Live chat preview"><div className={styles.sectionHeading}><h2>Live chat</h2><span>Demo room</span></div><div className={styles.chatMessages} ref={chatRef} aria-live="polite">{liveMessages.map((item, index) => <p className={styles.chatMessage} key={`${item.name}-${index}`}><strong>{item.name}</strong><span>{item.text}</span></p>)}</div><form className={styles.chatForm} onSubmit={postLiveMessage}><input aria-label="Write a watch chat message" value={liveMessage} maxLength={180} onChange={(event) => setLiveMessage(event.target.value)} placeholder="Join the conversation…" /><button aria-label="Send watch chat message" disabled={!liveMessage.trim()}><Play size={15} /></button></form></section>
       <aside className={styles.relatedPanel} aria-label="Related videos"><div className={styles.sectionHeading}><h2>Up next</h2><span>{related.length} videos</span></div>
         {related.length ? related.map((item) => <Link key={item.id} to={`/watch/${item.id}`} className={styles.relatedVideo}>
           <span className={`${styles.relatedThumb} ${styles[item.color] || ''}`}><Play size={18} fill="currentColor" /></span>
           <span><strong>{item.title}</strong><small>{item.creator}</small><small>{item.views}</small></span>
         </Link>) : <p className={styles.mutedText}>More videos from this category are coming soon.</p>}
-      </aside>
+      </aside></aside>
     </div>
   </main>
 }

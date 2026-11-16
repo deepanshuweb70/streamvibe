@@ -1,18 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it } from 'vitest'
 import HomePage from './HomePage'
 
 describe('HomePage', () => {
-  it('shows the featured section and recommended videos', () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>)
+  const renderPage = () => render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><HomePage /></MemoryRouter></QueryClientProvider>)
+  it('shows the featured section and recommended videos', async () => {
+    renderPage()
     expect(screen.getByRole('heading', { name: /find your next favorite/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /recommended for you/i })).toBeInTheDocument()
-    expect(screen.getByText('Chasing the Northern Lights in Iceland')).toBeInTheDocument()
+    expect(await screen.findByText('Chasing the Northern Lights in Iceland')).toBeInTheDocument()
   })
 
-  it('links recommendations to their watch pages', () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>)
-    expect(screen.getByRole('link', { name: /chasing the northern lights/i })).toHaveAttribute('href', '/watch/aurora')
+  it('links recommendations to their watch pages', async () => {
+    renderPage()
+    expect(await screen.findByRole('link', { name: /chasing the northern lights/i })).toHaveAttribute('href', '/watch/aurora')
   })
 })

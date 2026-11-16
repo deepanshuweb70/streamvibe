@@ -1,6 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 import { videoCatalog } from './data/videoCatalog'
@@ -14,7 +15,7 @@ describe('StreamVibe main flows', () => {
 
   it('searches, opens a watch page, saves a video, chats live, and adds a studio listing', async () => {
     const user = userEvent.setup()
-    render(<MemoryRouter initialEntries={['/home']}><App /></MemoryRouter>)
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/home']}><App /></MemoryRouter></QueryClientProvider>)
 
     await user.type(await screen.findByRole('textbox', { name: 'Search videos' }), 'Maya Chen')
     const videoLink = await screen.findByRole('link', { name: /chasing the northern lights/i })
@@ -39,7 +40,7 @@ describe('StreamVibe main flows', () => {
 
   it('renders a native media player and lets viewers add and upvote comments', async () => {
     const user = userEvent.setup()
-    render(<MemoryRouter initialEntries={['/watch/aurora']}><App /></MemoryRouter>)
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter initialEntries={['/watch/aurora']}><App /></MemoryRouter></QueryClientProvider>)
     expect(await screen.findByLabelText('Chasing the Northern Lights in Iceland')).toHaveProperty('tagName', 'VIDEO')
     await user.type(screen.getByRole('textbox', { name: 'Write a comment' }), 'Loved the film')
     await user.click(screen.getByRole('button', { name: 'Comment' }))

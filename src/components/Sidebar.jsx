@@ -8,9 +8,9 @@ const links = [
   { to: '/studio', label: 'Creator Studio', icon: Clapperboard },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ open = false, onNavigate = () => {} }) {
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${open ? styles.sidebarOpen : ''}`}>
       <NavLink className={styles.brand} to="/home" aria-label="StreamVibe home">
         <span className={styles.brandIcon}><Video size={21} /></span>
         <span>Stream<span className={styles.brandAccent}>Vibe</span></span>
@@ -18,7 +18,7 @@ export default function Sidebar() {
       <p className={styles.sectionLabel}>Discover</p>
       <nav className={styles.navigation} aria-label="Main navigation">
         {links.map(({ to, label, icon: Icon }) => (
-          <NavLink key={to} to={to} className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
+          <NavLink key={to} to={to} onClick={onNavigate} className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}>
             <Icon size={19} strokeWidth={1.8} />
             <span>{label}</span>
           </NavLink>

@@ -1,5 +1,5 @@
 import { Component, lazy, Suspense, useEffect, useState } from 'react'
-import { Bell, Moon, Search, Sun } from 'lucide-react'
+import { Bell, Menu, Moon, Search, Sun, X } from 'lucide-react'
 import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import { useAppStore } from './store/useAppStore'
@@ -32,6 +32,7 @@ function App() {
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedQuery(searchQuery), 250)
@@ -41,9 +42,10 @@ function App() {
   return (
     <div className={styles.app} data-theme={theme}>
       <div className={styles.layout}>
-        <Sidebar />
+        <Sidebar open={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
         <div className={styles.workspace}>
           <header className={styles.topbar}>
+            <button className={styles.mobileMenu} type="button" onClick={() => setMobileNavOpen((open) => !open)} aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'}>{mobileNavOpen ? <X size={20} /> : <Menu size={20} />}</button>
             <label className={styles.searchWrap}>
               <Search className={styles.searchIcon} size={18} />
               <input

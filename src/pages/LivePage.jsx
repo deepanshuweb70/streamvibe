@@ -9,6 +9,11 @@ const startingMessages = [
   { name: 'Arjun', text: 'That sax solo was lovely!' },
   { name: 'Milo', text: 'Listening while I work. Thanks for streaming!' },
 ]
+const mockMessages = [
+  { name: 'Nora', text: 'That melody is wonderful 💜' },
+  { name: 'Sam', text: 'Hello from the live room 👋' },
+  { name: 'Isha', text: 'Listening along while I draw ✨' },
+]
 
 export default function LivePage() {
   const videos = useAppStore((state) => state.videos)
@@ -32,6 +37,16 @@ export default function LivePage() {
     if (panel) panel.scrollTop = panel.scrollHeight
   }, [messages])
 
+  useEffect(() => {
+    let index = 0
+    const timer = window.setInterval(() => {
+      const next = mockMessages[index % mockMessages.length]
+      index += 1
+      setMessages((current) => [...current.slice(-29), next])
+    }, 12000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   return <main className={styles.page}>
     <p className={styles.eyebrow}>Live now</p><h1 className={styles.title}>Be here for the moment.</h1><p className={styles.subtitle}>Watch live creators and join the conversation.</p>
     {activeStream ? <div className={styles.liveLayout}>
@@ -42,7 +57,8 @@ export default function LivePage() {
       </section>
       <section className={styles.chatPanel} aria-label="Live chat"><div className={styles.chatHeader}><div><MessageCircle size={17} /><strong>Live chat</strong></div><span>{messages.length} messages</span></div>
         <div className={styles.chatMessages} ref={messagesRef} aria-live="polite">{messages.map((item, index) => <p className={styles.chatMessage} key={`${item.name}-${index}`}><strong>{item.name}</strong><span>{item.text}</span></p>)}</div>
-        <form className={styles.chatForm} onSubmit={sendMessage}><input aria-label="Write a chat message" maxLength={180} placeholder="Say something kind…" value={message} onChange={(event) => setMessage(event.target.value)} /><button aria-label="Add a heart emoji" type="button" className={styles.emojiButton} onClick={() => setMessage((value) => `${value} 💜`.trimStart())}>💜</button><button aria-label="Send message" type="submit" disabled={!message.trim()}><Send size={16} /></button></form>
+        <div className={styles.emojiPicker} aria-label="Add an emoji">{['💜', '❤️', '😂', '👏', '✨'].map((emoji) => <button key={emoji} type="button" aria-label={`Add ${emoji}`} onClick={() => setMessage((value) => `${value}${value ? ' ' : ''}${emoji}`)}>{emoji}</button>)}</div>
+        <form className={styles.chatForm} onSubmit={sendMessage}><input aria-label="Write a chat message" maxLength={180} placeholder="Say something kind…" value={message} onChange={(event) => setMessage(event.target.value)} /><button aria-label="Send message" type="submit" disabled={!message.trim()}><Send size={16} /></button></form>
       </section>
     </div> : <div className={styles.emptyState}><Radio size={30} /><h2>No one is live right now</h2><p>Check back soon or explore the latest stories.</p><Link to="/home" className={styles.secondaryButton}>Explore videos</Link></div>}
   </main>
